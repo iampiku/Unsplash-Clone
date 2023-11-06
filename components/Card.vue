@@ -4,9 +4,8 @@
 			format="webp"
 			loading="lazy"
 			class="rounded-lg h-[380px]"
-			fit="fit"
 			:alt="props.photo.id"
-			:src="props.photo.urls.full"
+			:src="props.photo.urls.regular"
 		>
 		</NuxtImg>
 		<template #footer>

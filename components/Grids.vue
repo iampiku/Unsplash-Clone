@@ -1,7 +1,7 @@
 <template>
-	<main class="flex flex-wrap gap-5 justify-center">
+	<main class="flex flex-wrap gap-3 justify-stretch">
 		<template v-if="loading">
-			<UCard v-for="i in 5" :key="i" class="shadow-xl">
+			<UCard v-for="i in 8" :key="i" class="shadow-xl">
 				<USkeleton
 					class="h-[300px] w-[325px] mb-6"
 					:ui="{ rounded: 'rounded-lg' }"
@@ -16,13 +16,14 @@
 			</UCard>
 		</template>
 		<template v-else>
-			<Card v-for="photo in apiResponse" :key="photo.id" :photo="photo"></Card>
+			<Card v-for="photo in randomPhotos" :key="photo.id" :photo="photo"></Card>
 		</template>
 	</main>
 </template>
 
 <script lang="ts" setup>
-import apiResponse from "../apiResponse.json";
+const { randomPhotos, fetchRandomPhotos, loading, errorMessage } =
+	useUnsplash();
 
-const loading = useState(() => false);
+fetchRandomPhotos();
 </script>

@@ -22,7 +22,7 @@ export function useUnsplash() {
 		try {
 			const { errors, response, type } = await unsplashService(
 				ACCESS_KEY
-			).photos.getRandom({ count: 10 });
+			).photos.getRandom({ count: 30 });
 			if (type === "error") {
 				errorMessage.value = Array.isArray(errors)
 					? errors.map((error) => error).join(",")
