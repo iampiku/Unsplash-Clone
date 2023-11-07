@@ -1,6 +1,6 @@
 <template>
-	<main class="flex flex-col mx-[15%]">
-		<div class="pb-10">
+	<main>
+		<div class="pb-10 items-start">
 			<p class="uppercase font-bold text-sm tracking-wider dark:text-slate-300">
 				Welcome to
 			</p>
@@ -18,8 +18,9 @@
 				<UInput
 					size="lg"
 					v-model="query"
-					class="flex-1 max-w-[650px]"
+					class="flex-1 max-w-[610px]"
 					placeholder="Search Images 📸"
+					@keyup.enter="handleSearch"
 					icon="i-heroicons-magnifying-glass-20-solid"
 				/>
 				<UButton class="px-4" @click="handleSearch" :disabled="searchEnable"
@@ -29,9 +30,9 @@
 		</div>
 		<template v-if="loading">
 			<div class="container columns-3 gap-6">
-				<UCard v-for="i in 8" :key="i" class="shadow-xl mb-4">
+				<UCard v-for="i in 8" :key="i" class="shadow-xl mb-4 w-[380px]">
 					<USkeleton
-						class="h-[300px] w-[370px] mb-6"
+						class="h-[300px] mx-w-full mb-6"
 						:ui="{ rounded: 'rounded-lg' }"
 					/>
 					<div class="flex">
@@ -45,11 +46,12 @@
 			</div>
 		</template>
 		<template v-else>
-			<div class="container columns-3 gap-6">
+			<div class="container columns-1 sm:columns-2 md:columns-3 gap-4">
 				<Card
-					v-for="photo in apiResponse"
-					:key="photo.id"
 					:photo="photo"
+					:key="photo.id"
+					@click="onImageClick(photo.id)"
+					v-for="photo in apiResponse"
 				></Card>
 			</div>
 		</template>
@@ -57,16 +59,24 @@
 </template>
 
 <script lang="ts" setup>
-// const { randomPhotos, fetchRandomPhotos, loading, errorMessage } =
-// 	useUnsplash();
+// const {
+// 	randomPhotos,
+// 	fetchRandomPhotos,
+// 	loading,
+// 	errorMessage,
+// 	searchPhotos,
+// 	searchResults,
+// } = useUnsplash();
 
 // fetchRandomPhotos();
 
 import apiResponse from "../apiResponse.json";
 
 const query = useState(() => "");
+const loading = useState(() => false);
 
-function handleSearch() {
+async function handleSearch() {
+	// await searchPhotos({ query: query.value, page: 1 });
 	console.log(query.value);
 }
 
@@ -74,5 +84,7 @@ const searchEnable = computed(() => {
 	return query.value.length < 3;
 });
 
-//
+function onImageClick(id: string) {
+	console.log(id);
+}
 </script>
