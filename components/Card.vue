@@ -1,9 +1,9 @@
 <template>
 	<UCard
-		class="cursor-pointer shadow-lg mb-4"
+		class="cursor-pointer shadow-lg mb-4 hover:shadow-2xl"
 		:ui="{
-			body: { padding: 'px-0 py-0 sm:p-4' },
-			footer: { padding: 'px-1 py-1 sm:p-4' },
+			body: { padding: 'sm:p-3' },
+			footer: { padding: 'sm:p-3' },
 		}"
 	>
 		<NuxtImg
@@ -39,12 +39,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { Random } from "unsplash-js/dist/methods/photos/types";
+import type { Random, Basic } from "unsplash-js/dist/methods/photos/types";
 
 interface Props {
-	photo: Random;
+	photo: Random | Basic;
 }
-
 const props = defineProps<Props>();
 
 const name = computed(() => {
