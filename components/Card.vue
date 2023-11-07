@@ -1,16 +1,22 @@
 <template>
-	<UCard class="cursor-pointer shadow-lg">
+	<UCard
+		class="cursor-pointer shadow-lg mb-4"
+		:ui="{
+			body: { padding: 'px-0 py-0 sm:p-4' },
+			footer: { padding: 'px-1 py-1 sm:p-4' },
+		}"
+	>
 		<NuxtImg
 			format="webp"
 			loading="lazy"
-			class="rounded-lg h-[380px]"
+			class="rounded-lg h-auto max-w-full"
 			:alt="props.photo.id"
 			:src="props.photo.urls.regular"
 		>
 		</NuxtImg>
 		<template #footer>
-			<div class="flex">
-				<div class="flex flex-grow items-center">
+			<div class="flex justify-between">
+				<div class="flex items-center">
 					<UAvatar
 						size="md"
 						class="mr-2"
