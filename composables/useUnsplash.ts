@@ -1,74 +1,105 @@
-import type { Random, Basic } from "unsplash-js/dist/methods/photos/types";
+import type { Errors } from "unsplash-js/dist/helpers/errors";
+import type {
+	Random,
+	Basic,
+	Full,
+} from "unsplash-js/dist/methods/photos/types";
 import unsplashService from "~/service";
 
 export function useUnsplash() {
-	const randomPhotos = useState<Random[]>(() => []);
-	const searchResults = useState<{
-		results: Basic[];
-		total: number;
-		total_pages: number;
-	}>(() => ({
+	const defaultSearchResults = {
 		results: [],
 		total: 0,
 		total_pages: 0,
-	}));
-	const loading = useState(() => false);
-	const errorMessage = useState(() => "");
+	};
+	const networkError = "Network error!";
+	const unsplashServiceInstance = unsplashService(
+		useRuntimeConfig().public.ACCESS_KEY
+	);
 
-	const ACCESS_KEY = useRuntimeConfig().public.ACCESS_KEY;
+	const state = useState<{
+		loading: boolean;
+		errorMessage: string;
+		photoDetails: Full;
+		randomPhotos: Random[];
+		searchResults: { results: Basic[]; total: number; total_pages: number };
+	}>(() => ({
+		loading: false,
+		errorMessage: "",
+		photoDetails: {},
+		randomPhotos: [],
+		searchResults: { results: [], total: 0, total_pages: 0 },
+	}));
+
+	console.log("composable state");
+	console.log(state.value);
+
+	function _onError(errors: Errors) {
+		return Array.isArray(errors) ? errors.toString() : errors;
+	}
 
 	async function fetchRandomPhotos() {
-		loading.value = true;
+		state.value.loading = true;
 		try {
-			const { errors, response, type } = await unsplashService(
-				ACCESS_KEY
-			).photos.getRandom({ count: 30 });
+			const { errors, response, type } =
+				await unsplashServiceInstance.photos.getRandom({ count: 30 });
 			if (type === "error") {
-				errorMessage.value = Array.isArray(errors)
-					? errors.map((error) => error).join(",")
-					: errors;
+				state.value.errorMessage = _onError(errors);
 				return;
 			}
-			if (Array.isArray(response))
-				response.forEach((photo) => randomPhotos.value.push(photo));
-			else randomPhotos.value.push(response);
+			if (Array.isArray(response)) state.value.randomPhotos = response;
+			else state.value.randomPhotos.push(response);
 		} catch {
-			errorMessage.value = "Network error!!!";
+			state.value.errorMessage = networkError;
+			state.value.randomPhotos = [];
 		} finally {
-			loading.value = false;
+			state.value.loading = false;
 		}
 	}
 
 	async function searchPhotos(params: { query: string; page: number }) {
-		loading.value = true;
+		state.value.loading = true;
 		try {
-			const { errors, response, type } = await unsplashService(
-				ACCESS_KEY
-			).search.getPhotos({
-				query: params.query,
-				page: params.page,
-				perPage: 10,
-			});
+			const { errors, response, type } =
+				await unsplashServiceInstance.search.getPhotos({
+					query: params.query,
+					page: params.page,
+					perPage: 10,
+				});
 			if (type === "error") {
-				errorMessage.value = Array.isArray(errors)
-					? errors.map((error) => error).join(",")
-					: errors;
+				state.value.errorMessage = _onError(errors);
 				return;
 			}
-			if (response) searchResults.value = response;
+			if (response) state.value.searchResults = response;
 		} catch {
-			errorMessage.value = "Network error!!";
+			state.value.errorMessage = networkError;
+			state.value.searchResults = defaultSearchResults;
 		} finally {
-			loading.value = false;
+			state.value.loading = false;
+		}
+	}
+
+	async function fetchPhotoDetails(photoId: string) {
+		state.value.loading = true;
+		try {
+			const { errors, response, type } =
+				await unsplashServiceInstance.photos.get({ photoId });
+			if (type === "error") {
+				state.value.errorMessage = _onError(errors);
+				return;
+			}
+			if (response) state.value.photoDetails = response;
+		} catch {
+			state.value.errorMessage = networkError;
+		} finally {
+			state.value.loading = false;
 		}
 	}
 
 	return {
-		loading,
-		errorMessage,
-		randomPhotos,
-		searchResults,
+		state,
 		searchPhotos,
 		fetchRandomPhotos,
+		fetchPhotoDetails,
 	};
 }

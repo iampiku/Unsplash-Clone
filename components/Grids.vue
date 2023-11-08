@@ -1,10 +1,12 @@
 <template>
 	<main>
 		<div class="pb-10 items-start">
-			<p class="uppercase font-bold text-sm tracking-wider dark:text-slate-300">
+			<p class="uppercase font-bold text-sm tracking-wider dark:text-slate-100">
 				Welcome to
 			</p>
-			<p class="text-4xl uppercase font-extrabold tracking-wider">
+			<p
+				class="text-4xl uppercase font-extrabold tracking-wider dark:text-slate-100"
+			>
 				Search <br />
 				Unsplash
 			</p>
@@ -28,7 +30,7 @@
 				>
 			</div>
 		</div>
-		<template v-if="loading">
+		<template v-if="state.loading">
 			<div class="container columns-3 gap-6">
 				<UCard v-for="i in 8" :key="i" class="shadow-xl mb-4 w-[380px]">
 					<USkeleton
@@ -46,12 +48,14 @@
 			</div>
 		</template>
 		<template v-else>
-			<div class="container columns-1 sm:columns-2 md:columns-3 gap-4">
+			<div
+				class="container columns-1 sm:columns-2 md:columns-2 lg:columns-3 gap-4"
+			>
 				<Card
 					:photo="photo"
 					:key="photo.id"
 					@click="onImageClick(photo.id)"
-					v-for="photo in apiResponse"
+					v-for="photo in photos"
 				></Card>
 			</div>
 		</template>
@@ -59,24 +63,21 @@
 </template>
 
 <script lang="ts" setup>
-// const {
-// 	randomPhotos,
-// 	fetchRandomPhotos,
-// 	loading,
-// 	errorMessage,
-// 	searchPhotos,
-// 	searchResults,
-// } = useUnsplash();
-
-// fetchRandomPhotos();
-
-import apiResponse from "../apiResponse.json";
-
+// import apiResponse from "../apiResponse.json";
 const query = useState(() => "");
-const loading = useState(() => false);
+// const loading = useState(() => false);
+const { state, searchPhotos, fetchPhotoDetails, fetchRandomPhotos } =
+	useUnsplash();
+
+console.log(state.value);
+
+onMounted(async () => {
+	// if (query.value.length) return;
+	await fetchRandomPhotos();
+});
 
 async function handleSearch() {
-	// await searchPhotos({ query: query.value, page: 1 });
+	await searchPhotos({ query: query.value, page: 1 });
 	console.log(query.value);
 }
 
@@ -84,7 +85,13 @@ const searchEnable = computed(() => {
 	return query.value.length < 3;
 });
 
-function onImageClick(id: string) {
-	console.log(id);
+const photos = computed(() => {
+	return query.value.length && state.value.searchResults.results.length
+		? state.value.searchResults.results
+		: state.value.randomPhotos;
+});
+
+async function onImageClick(id: string) {
+	await fetchPhotoDetails(id);
 }
 </script>
