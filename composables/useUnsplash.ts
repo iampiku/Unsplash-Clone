@@ -68,7 +68,7 @@ export function useUnsplash() {
 				await unsplashServiceInstance.search.getPhotos({
 					query: params.query,
 					page: params.page,
-					perPage: 10,
+					perPage: 25,
 				});
 			if (type === "error") {
 				state.errorMessage = _onError(errors);

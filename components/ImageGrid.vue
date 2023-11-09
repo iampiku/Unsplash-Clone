@@ -96,7 +96,7 @@ onMounted(async () => {
 });
 
 async function handleSearch(params: { query: string; page: number }) {
-	// if (params.query.length) query.value = params.query;
+	if (params.query.length) query.value = params.query;
 	// if (params.query !== query.value) currentPage.value = 1;
 	await searchPhotos(params);
 	// route.params = {

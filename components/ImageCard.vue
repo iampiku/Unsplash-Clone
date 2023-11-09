@@ -1,22 +1,22 @@
 <template>
 	<UCard
-		class="cursor-pointer shadow-lg mb-4 hover:shadow-2xl max-w-lg hover:scale-105 duration-500"
+		class="cursor-pointer shadow-lg mb-4 hover:shadow-2xl max-w-full hover:scale-105 duration-500"
 		:ui="{
-			body: { padding: 'sm:p-3' },
+			body: { padding: 'sm:p-41' },
 			footer: { padding: 'sm:p-3' },
 		}"
 	>
 		<NuxtImg
 			format="webp"
-			loading="lazy"
+			loading="eager"
 			class="rounded-lg h-auto"
 			:alt="props.photo.id"
-			:src="props.photo.urls.small"
+			:src="props.photo.urls.regular"
 		>
 		</NuxtImg>
 		<template #footer>
 			<div class="flex justify-between">
-				<div class="flex items-center">
+				<div class="flex">
 					<UAvatar
 						size="md"
 						class="mr-2"
