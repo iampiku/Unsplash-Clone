@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 	app: {
 		head: {
 			charset: "utf-16",
-			title: "Unsplash Clone",
+			title: "Unsplash Clone 📷",
 			meta: [
 				{
 					name: "Unsplash Clone",

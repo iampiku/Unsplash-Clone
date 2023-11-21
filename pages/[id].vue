@@ -18,14 +18,14 @@
 					<div class="flex items-center text-xl font-semibold">
 						<UIcon name="i-heroicons-heart"></UIcon>
 						<span class="ml-2">{{ likes }}</span>
-						<NuxtLink :to="photo.links.download" :external="true">
-							<UButton
-								size="xl"
-								class="ml-6"
-								@click="handleDownload"
-								icon="i-heroicons-arrow-down-tray"
-							></UButton>
-						</NuxtLink>
+
+						<UButton
+							size="xl"
+							class="ml-6"
+							:loading="loading"
+							@click="handleDownload"
+							icon="i-heroicons-arrow-down-tray"
+						></UButton>
 					</div>
 				</header>
 			</template>
@@ -74,12 +74,14 @@
 
 <script lang="ts" setup>
 const route = useRoute();
-const { photo, fetchPhotoDetails, downloadPhoto } = useUnsplash();
+const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();
 
 fetchPhotoDetails(route.params.id.toString());
 
-function handleDownload() {
-	console.log(photo.value.links.download_location);
+async function handleDownload() {
+	await downloadPhoto({
+		downloadLocation: photo.value.links.download_location,
+	});
 }
 
 const publishedOn = computed(() => {

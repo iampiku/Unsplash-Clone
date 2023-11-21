@@ -27,9 +27,9 @@
 				/>
 				<UButton
 					class="px-4"
-					@click="handleSearch({ query, page: 1 })"
-					:disabled="isSearchEnable"
 					:loading="loading"
+					:disabled="isSearchEnable"
+					@click="handleSearch({ query, page: 1 })"
 					>Search</UButton
 				>
 			</div>
@@ -98,11 +98,11 @@ onMounted(async () => {
 
 async function handleSearch(params: { query: string; page: number }) {
 	if (params.query.length) query.value = params.query;
-	// if (params.query !== query.value) currentPage.value = 1;
+	if (params.query !== query.value) currentPage.value = 1;
 	await searchPhotos(params);
-	// route.params = {
-	// 	search: params.query,
-	// };
+	route.params = {
+		search: params.query,
+	};
 }
 
 const isSearchEnable = computed(() => {

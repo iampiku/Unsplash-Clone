@@ -4,11 +4,45 @@ import type { Photos } from "unsplash-js/dist/methods/search/types/response";
 
 import unsplashService from "~/service";
 
+type Photo = Full & {
+	views: number;
+	downloads: number;
+};
+
+async function triggerDownload(downloadLink: string) {
+	const image = await fetchImageBlob(downloadLink);
+	if (!image) return;
+
+	const downloadFileName = "download_image.jpg";
+	const downloadFileURL = window.URL.createObjectURL(image);
+
+	const anchorElement = document.createElement("a");
+	anchorElement.download = downloadFileName;
+	anchorElement.href = downloadFileURL;
+
+	try {
+		document.body.appendChild(anchorElement);
+		anchorElement.click();
+		document.body.removeChild(anchorElement);
+	} catch (error) {
+		console.error(error);
+	} finally {
+		window.URL.revokeObjectURL(downloadFileURL);
+	}
+}
+
+async function fetchImageBlob(downloadLink: string): Promise<Blob | null> {
+	try {
+		const response = await fetch(downloadLink);
+		return response.blob();
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+}
+
 export function useUnsplash() {
-	/**
-	 * State
-	 */
-	const photo = useState<Full>();
+	const photo = useState<Photo>();
 	const photos = useState<Photos>();
 	const loading = useState(() => false);
 	const errorMessage = useState(() => "");
@@ -77,7 +111,7 @@ export function useUnsplash() {
 				_onError(errors);
 				return;
 			}
-			if (response) photo.value = response;
+			if (response) photo.value = response as Photo;
 		} catch {
 			errorMessage.value = networkError;
 			photo.value = Object.create({});
@@ -86,19 +120,22 @@ export function useUnsplash() {
 		}
 	}
 
-	async function downloadPhoto(downloadLocation: string) {
+	async function downloadPhoto(params: { downloadLocation: string }) {
+		loading.value = true;
 		try {
 			const { response, type, errors } =
-				await unsplashServiceInstance.photos.trackDownload({
-					downloadLocation: downloadLocation,
-				});
+				await unsplashServiceInstance.photos.trackDownload(params);
 			if (type === "error") {
 				_onError(errors);
 				return;
 			}
-			return response.url;
-		} catch {
-			console.error("Oops something went wrong");
+			if (!response.url) throw new Error("Oops! something went wrong");
+
+			await triggerDownload(response.url);
+		} catch (error) {
+			console.error(error);
+		} finally {
+			loading.value = false;
 		}
 	}
 
