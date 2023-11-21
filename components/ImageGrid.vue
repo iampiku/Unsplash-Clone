@@ -29,7 +29,7 @@
 					class="px-4"
 					@click="handleSearch({ query, page: 1 })"
 					:disabled="isSearchEnable"
-					:loading="state.loading"
+					:loading="loading"
 					>Search</UButton
 				>
 			</div>
@@ -51,21 +51,21 @@
 				>
 			</div>
 		</div>
-		<template v-if="state.loading">
+		<template v-if="loading">
 			<div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
 				<CardSkeletonLoader :card-count="10" />
 			</div>
 		</template>
 		<template v-else>
 			<div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-				<NuxtLink :to="`/${photo.id}`" v-for="photo in state.photos.results">
+				<NuxtLink :to="`/${photo.id}`" v-for="photo in randomPhotos">
 					<ImageCard :photo="photo" :key="photo.id" />
 				</NuxtLink>
 			</div>
 		</template>
 
 		<UPagination
-			v-if="state.photos.total_pages"
+			v-if="false"
 			v-model="currentPage"
 			@click="onPagination"
 			:prev-button="{
@@ -80,7 +80,7 @@
 				color: 'gray',
 			}"
 			class="flex justify-center pt-6"
-			:total="state.photos.total_pages || 0"
+			:total="photos.total_pages || 0"
 		/>
 	</main>
 </template>
@@ -89,7 +89,8 @@
 const route = useRoute();
 const query = useState(() => "");
 const currentPage = useState(() => 1);
-const { state, searchPhotos, fetchRandomPhotos } = useUnsplash();
+const { randomPhotos, photos, loading, searchPhotos, fetchRandomPhotos } =
+	useUnsplash();
 
 onMounted(async () => {
 	await fetchRandomPhotos();

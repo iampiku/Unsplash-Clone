@@ -1,68 +1,53 @@
 import type { Errors } from "unsplash-js/dist/helpers/errors";
-import type {
-	Random,
-	Basic,
-	Full,
-} from "unsplash-js/dist/methods/photos/types";
+import type { Random, Full } from "unsplash-js/dist/methods/photos/types";
+import type { Photos } from "unsplash-js/dist/methods/search/types/response";
 
 import unsplashService from "~/service";
 
-interface State {
-	theme: string;
-	loading: boolean;
-	errorMessage: string;
-	photoDetails: Full | null;
-	photos: {
-		results: Array<Random | Basic>;
-		total?: number;
-		total_pages?: number;
-	};
-}
-
 export function useUnsplash() {
-	const defaultState = {
-		theme: "light",
-		loading: false,
-		errorMessage: "",
-		photoDetails: null,
-		photos: {
-			total: 0,
-			results: [],
-			total_pages: 0,
-		},
-	};
+	/**
+	 * State
+	 */
+	const photo = useState<Full>();
+	const photos = useState<Photos>();
+	const loading = useState(() => false);
+	const errorMessage = useState(() => "");
+	const randomPhotos = useState<Array<Random>>();
+
 	const networkError = "Network error!";
+
+	/**
+	 * initialing unsplash instance
+	 */
 	const unsplashServiceInstance = unsplashService(
 		useRuntimeConfig().public.ACCESS_KEY
 	);
 
-	const state = reactive<State>(defaultState);
-
 	function _onError(errors: Errors) {
-		return Array.isArray(errors) ? errors.toString() : errors;
+		errorMessage.value = Array.isArray(errors) ? errors.toString() : errors;
 	}
 
 	async function fetchRandomPhotos() {
-		state.loading = true;
+		loading.value = true;
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.photos.getRandom({ count: 30 });
 			if (type === "error") {
-				state.errorMessage = _onError(errors);
+				_onError(errors);
 				return;
 			}
-			if (Array.isArray(response)) state.photos.results = response;
-			else state.photos.results.push(response);
+			if (Array.isArray(response)) randomPhotos.value = response;
+			else randomPhotos.value.push(response);
 		} catch {
-			state.errorMessage = networkError;
-			state.photos.results = [];
+			errorMessage.value = networkError;
+			randomPhotos.value = [];
 		} finally {
-			state.loading = false;
+			loading.value = false;
 		}
 	}
 
 	async function searchPhotos(params: { query: string; page: number }) {
-		state.loading = true;
+		loading.value = true;
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.search.getPhotos({
@@ -71,38 +56,60 @@ export function useUnsplash() {
 					perPage: 25,
 				});
 			if (type === "error") {
-				state.errorMessage = _onError(errors);
+				_onError(errors);
 				return;
 			}
-			if (response) state.photos = response;
+			if (response) photos.value = response;
 		} catch {
-			state.errorMessage = networkError;
-			state.photos = { results: [], total: 0, total_pages: 0 };
+			errorMessage.value = networkError;
+			photos.value = { results: [], total: 0, total_pages: 0 };
 		} finally {
-			state.loading = false;
+			loading.value = false;
 		}
 	}
 
 	async function fetchPhotoDetails(photoId: string) {
-		state.loading = true;
+		loading.value = true;
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.photos.get({ photoId });
 			if (type === "error") {
-				state.errorMessage = _onError(errors);
+				_onError(errors);
 				return;
 			}
-			if (response) state.photoDetails = response;
+			if (response) photo.value = response;
 		} catch {
-			state.errorMessage = networkError;
+			errorMessage.value = networkError;
+			photo.value = Object.create({});
 		} finally {
-			state.loading = false;
+			loading.value = false;
+		}
+	}
+
+	async function downloadPhoto(downloadLocation: string) {
+		try {
+			const { response, type, errors } =
+				await unsplashServiceInstance.photos.trackDownload({
+					downloadLocation: downloadLocation,
+				});
+			if (type === "error") {
+				_onError(errors);
+				return;
+			}
+			return response.url;
+		} catch {
+			console.error("Oops something went wrong");
 		}
 	}
 
 	return {
-		state,
+		photo,
+		photos,
+		loading,
+		errorMessage,
+		randomPhotos,
 		searchPhotos,
+		downloadPhoto,
 		fetchRandomPhotos,
 		fetchPhotoDetails,
 	};
