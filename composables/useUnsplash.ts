@@ -9,11 +9,14 @@ type Photo = Full & {
 	downloads: number;
 };
 
-async function triggerDownload(downloadLink: string) {
-	const image = await fetchImageBlob(downloadLink);
+async function triggerDownload(params: {
+	downloadLink: string;
+	photoId: string;
+}) {
+	const image = await fetchImageBlob(params.downloadLink);
 	if (!image) return;
 
-	const downloadFileName = "download_image.jpg";
+	const downloadFileName = `${params.photoId}.jpg`;
 	const downloadFileURL = window.URL.createObjectURL(image);
 
 	const anchorElement = document.createElement("a");
@@ -131,7 +134,10 @@ export function useUnsplash() {
 			}
 			if (!response.url) throw new Error("Oops! something went wrong");
 
-			await triggerDownload(response.url);
+			await triggerDownload({
+				downloadLink: response.url,
+				photoId: photo.value.id,
+			});
 		} catch (error) {
 			console.error(error);
 		} finally {

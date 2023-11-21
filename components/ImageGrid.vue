@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
+// const route = useRoute();
 const query = useState(() => "");
 const currentPage = useState(() => 1);
 const { randomPhotos, photos, loading, searchPhotos, fetchRandomPhotos } =
@@ -98,11 +98,14 @@ onMounted(async () => {
 
 async function handleSearch(params: { query: string; page: number }) {
 	if (params.query.length) query.value = params.query;
-	if (params.query !== query.value) currentPage.value = 1;
+	if (params.query !== query.value) {
+		currentPage.value = 1;
+		params.query = query.value;
+	}
 	await searchPhotos(params);
-	route.params = {
-		search: params.query,
-	};
+	// route.params = {
+	// 	search: params.query,
+	// };
 }
 
 const isSearchEnable = computed(() => {
