@@ -4,6 +4,14 @@
 			<template #header>
 				<header class="flex justify-between">
 					<div class="flex items-center">
+						<NuxtLink to="/">
+							<UButton
+								size="xl"
+								class="mr-6"
+								variant="ghost"
+								icon="i-heroicons-arrow-left"
+							></UButton>
+						</NuxtLink>
 						<UAvatar
 							size="lg"
 							class="mr-2"
@@ -22,6 +30,7 @@
 						<UButton
 							size="xl"
 							class="ml-6"
+							variant="ghost"
 							:loading="loading"
 							@click="handleDownload"
 							icon="i-heroicons-arrow-down-tray"
@@ -74,6 +83,7 @@
 
 <script lang="ts" setup>
 const route = useRoute();
+const { formatData } = useUtil();
 const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();
 
 fetchPhotoDetails(route.params.id.toString());
@@ -85,24 +95,18 @@ async function handleDownload() {
 }
 
 const publishedOn = computed(() => {
-	const originalData = new Date(photo.value.created_at ?? "");
-
-	return originalData.toLocaleString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
+	return formatData({ type: "Date", data: photo.value.created_at });
 });
 
 const views = computed(() => {
-	return (photo.value.views ?? 0).toLocaleString("en-US");
+	return formatData({ type: "Number", data: photo.value.views });
 });
 
 const downloads = computed(() => {
-	return (photo.value.downloads ?? 0).toLocaleString("en-US");
+	return formatData({ type: "Number", data: photo.value.downloads });
 });
 
 const likes = computed(() => {
-	return (photo.value.likes ?? 0).toLocaleString("en-US");
+	return formatData({ type: "Number", data: photo.value.likes });
 });
 </script>

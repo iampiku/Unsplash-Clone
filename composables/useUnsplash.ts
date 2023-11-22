@@ -9,42 +9,8 @@ type Photo = Full & {
 	downloads: number;
 };
 
-async function triggerDownload(params: {
-	downloadLink: string;
-	photoId: string;
-}) {
-	const image = await fetchImageBlob(params.downloadLink);
-	if (!image) return;
-
-	const downloadFileName = `${params.photoId}.jpg`;
-	const downloadFileURL = window.URL.createObjectURL(image);
-
-	const anchorElement = document.createElement("a");
-	anchorElement.download = downloadFileName;
-	anchorElement.href = downloadFileURL;
-
-	try {
-		document.body.appendChild(anchorElement);
-		anchorElement.click();
-		document.body.removeChild(anchorElement);
-	} catch (error) {
-		console.error(error);
-	} finally {
-		window.URL.revokeObjectURL(downloadFileURL);
-	}
-}
-
-async function fetchImageBlob(downloadLink: string): Promise<Blob | null> {
-	try {
-		const response = await fetch(downloadLink);
-		return response.blob();
-	} catch (error) {
-		console.error(error);
-		return null;
-	}
-}
-
 export function useUnsplash() {
+	const { initFileDownload } = useUtil();
 	const photo = useState<Photo>();
 	const photos = useState<Photos>();
 	const loading = useState(() => false);
@@ -60,17 +26,21 @@ export function useUnsplash() {
 		useRuntimeConfig().public.ACCESS_KEY
 	);
 
-	function _onError(errors: Errors) {
+	function setLoading(value: boolean) {
+		loading.value = value;
+	}
+
+	function setError(errors: Errors) {
 		errorMessage.value = Array.isArray(errors) ? errors.toString() : errors;
 	}
 
 	async function fetchRandomPhotos() {
-		loading.value = true;
+		setLoading(true);
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.photos.getRandom({ count: 30 });
 			if (type === "error") {
-				_onError(errors);
+				setError(errors);
 				return;
 			}
 			if (Array.isArray(response)) randomPhotos.value = response;
@@ -79,7 +49,7 @@ export function useUnsplash() {
 			errorMessage.value = networkError;
 			randomPhotos.value = [];
 		} finally {
-			loading.value = false;
+			setLoading(false);
 		}
 	}
 
@@ -93,7 +63,7 @@ export function useUnsplash() {
 					perPage: 25,
 				});
 			if (type === "error") {
-				_onError(errors);
+				setError(errors);
 				return;
 			}
 			if (response) photos.value = response;
@@ -111,7 +81,7 @@ export function useUnsplash() {
 			const { errors, response, type } =
 				await unsplashServiceInstance.photos.get({ photoId });
 			if (type === "error") {
-				_onError(errors);
+				setError(errors);
 				return;
 			}
 			if (response) photo.value = response as Photo;
@@ -129,14 +99,14 @@ export function useUnsplash() {
 			const { response, type, errors } =
 				await unsplashServiceInstance.photos.trackDownload(params);
 			if (type === "error") {
-				_onError(errors);
+				setError(errors);
 				return;
 			}
 			if (!response.url) throw new Error("Oops! something went wrong");
 
-			await triggerDownload({
+			await initFileDownload({
 				downloadLink: response.url,
-				photoId: photo.value.id,
+				fileName: photo.value.id,
 			});
 		} catch (error) {
 			console.error(error);
