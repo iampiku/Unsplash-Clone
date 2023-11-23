@@ -1,6 +1,6 @@
 <template>
 	<UContainer class="max-w-full p-6 my-4" v-if="photo">
-		<UCard class="max-w-full">
+		<UCard>
 			<template #header>
 				<header class="flex justify-between">
 					<div class="flex items-center">
@@ -20,7 +20,20 @@
 
 						<div class="flex flex-col text-lg">
 							<span class="font-bold">{{ photo.user.name }}</span>
-							<span class="font-semibold">{{ photo.user.bio }}</span>
+							<UTooltip
+								v-if="photo.user.bio"
+								:open-delay="200"
+								:text="photo.user.bio"
+								:popper="{ placement: 'auto' }"
+								:ui="{
+									base: '[@media(pointer:coarse)]:hidden h-7 px-2 py-1 text-sm font-normal relative',
+									width: 'max-w-full',
+								}"
+							>
+								<span class="font-semibold truncate max-w-2xl">{{
+									photo.user.bio
+								}}</span>
+							</UTooltip>
 						</div>
 					</div>
 					<div class="flex items-center text-xl font-semibold">
@@ -38,43 +51,67 @@
 					</div>
 				</header>
 			</template>
-			<div class="grid grid-cols-12">
-				<NuxtImg
-					format="webp"
-					loading="lazy"
-					class="rounded-lg col-span-4"
-					:alt="photo.id"
-					:src="photo.urls.full"
-				></NuxtImg>
+			<NuxtImg
+				format="webp"
+				loading="lazy"
+				class="rounded-lg mx-auto max-w-3xl"
+				:alt="photo.id"
+				:src="photo.urls.full"
+			></NuxtImg>
 
-				<div id="stats" class="col-span-8">
-					<div class="flex justify-around text-2xl">
-						<div class="flex gap-2">
-							<UIcon name="i-heroicons-eye" class="mt-2"></UIcon>
-							<span>
-								<p class="font-light">Views</p>
-								<p class="font-semibold">{{ views }}</p>
-							</span>
-						</div>
-						<div class="flex gap-2">
-							<UIcon name="i-heroicons-arrow-down-tray" class="mt-2"></UIcon>
-							<span>
-								<p class="font-light">Downloads</p>
-								<p class="font-semibold">{{ downloads }}</p>
-							</span>
-						</div>
-						<div class="flex gap-2">
-							<UIcon name="i-heroicons-calendar-days" class="mt-2"></UIcon>
-							<span>
-								<p class="font-light">Published On</p>
-								<p class="font-semibold">{{ publishedOn }}</p>
-							</span>
-						</div>
-					</div>
+			<div id="stats" class="pt-6">
+				<div class="flex justify-center gap-4 items-center text-xl w-full">
+					<UCard
+						class="flex text-center justify-center gap-2 w-full"
+						:ui="{
+							body: { padding: 'sm:p-2' },
+						}"
+					>
+						<UIcon name="i-heroicons-eye" class="mt-2"></UIcon>
+						<span>
+							<p class="font-light">Views</p>
+							<p class="font-semibold">{{ views }}</p>
+						</span>
+					</UCard>
+					<UCard
+						class="flex text-center justify-center gap-2 w-full"
+						:ui="{
+							body: { padding: 'sm:p-2' },
+						}"
+					>
+						<UIcon name="i-heroicons-arrow-down-tray" class="mt-2"></UIcon>
+						<span>
+							<p class="font-light">Downloads</p>
+							<p class="font-semibold">{{ downloads }}</p>
+						</span>
+					</UCard>
+					<UCard
+						class="flex text-center justify-center gap-2 w-full"
+						:ui="{
+							body: { padding: 'sm:p-2' },
+						}"
+					>
+						<UIcon name="i-heroicons-calendar-days" class="mt-2"></UIcon>
+						<span>
+							<p class="font-light">Published On</p>
+							<p class="font-semibold">{{ publishedOn }}</p>
+						</span>
+					</UCard>
+				</div>
+				<div>
+					<header class="font-semibold text-2xl py-6">
+						Similar collections:
+					</header>
 
-					<div class="">
-						<header>Similar collections</header>
-					</div>
+					<section
+						class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+					>
+						<CollectionCard
+							:photoCollection="collectionPhoto"
+							v-for="collectionPhoto in photo.related_collections.results"
+						/>
+						<!-- <CollectionLoader v-for="i in 6" :key="i" /> -->
+					</section>
 				</div>
 			</div>
 		</UCard>
@@ -82,6 +119,8 @@
 </template>
 
 <script lang="ts" setup>
+import CollectionLoader from "~/components/SkeletonLoader/CollectionLoader.vue";
+
 const route = useRoute();
 const { formatData } = useUtil();
 const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();

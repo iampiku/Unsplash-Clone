@@ -41,6 +41,8 @@
 <script lang="ts" setup>
 import type { Random, Basic } from "unsplash-js/dist/methods/photos/types";
 
+const { formatData } = useUtil();
+
 interface Props {
 	photo: Random | Basic;
 }
@@ -51,12 +53,6 @@ const name = computed(() => {
 });
 
 const publishedOn = computed(() => {
-	const originalData = new Date(props.photo.created_at);
-
-	return originalData.toLocaleString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
+	return formatData({ type: "Date", data: props.photo.created_at });
 });
 </script>

@@ -1,5 +1,5 @@
 <template>
-	<!-- <main
+	<main
 		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-20 md:px-16"
 	>
 		<div class="pb-10 items-start">
@@ -87,12 +87,13 @@
 			class="flex justify-center pt-6"
 			:total="photos.total_pages"
 		/>
-	</main> -->
-	<ImageInfoSkeletonLoader />
-	<!-- <Footer /> -->
+	</main>
+
+	<Footer />
 </template>
 
 <script setup lang="ts">
+import CardSkeletonLoader from "~/components/SkeletonLoader/CardSkeletonLoader.vue";
 // const route = useRoute();
 const query = useState(() => "");
 const currentPage = useState(() => 1);

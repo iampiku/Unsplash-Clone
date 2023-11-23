@@ -12,6 +12,10 @@ type RawData = FormateDate | FormateNumber;
 
 export function useUtil() {
 	function formatData(params: RawData) {
+		const numberFormatter = new Intl.NumberFormat("en-US", {
+			notation: "compact",
+			compactDisplay: "short",
+		});
 		switch (params.type) {
 			case "Date":
 				return new Date(params.data).toLocaleString("en-US", {
@@ -20,19 +24,19 @@ export function useUtil() {
 					day: "numeric",
 				});
 			case "Number":
-				return params.data.toLocaleString("en-US", { compactDisplay: "short" });
+				return numberFormatter.format(params.data);
 			default:
 				return null;
 		}
 	}
-	async function initFileDownload(params: {
+	async function initFileDownload(fileDetails: {
 		downloadLink: string;
 		fileName: string;
 	}): Promise<void> {
-		const image = await fetchImageBlob(params.downloadLink);
+		const image = await fetchImageBlob(fileDetails.downloadLink);
 		if (!image) return;
 
-		const downloadFileName = `${params.fileName}.jpg`;
+		const downloadFileName = `${fileDetails.fileName}.jpg`;
 		const downloadFileURL = window.URL.createObjectURL(image);
 
 		const anchorElement = document.createElement("a");
