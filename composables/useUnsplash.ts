@@ -4,13 +4,14 @@ import type { Photos } from "unsplash-js/dist/methods/search/types/response";
 
 import unsplashService from "~/service";
 
+import { initFileDownload } from "~/utils";
+
 type Photo = Full & {
 	views: number;
 	downloads: number;
 };
 
 export function useUnsplash() {
-	const { initFileDownload } = useUtil();
 	const photo = useState<Photo>();
 	const photos = useState<Photos>();
 	const loading = useState(() => false);

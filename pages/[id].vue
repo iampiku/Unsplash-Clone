@@ -119,10 +119,10 @@
 </template>
 
 <script lang="ts" setup>
-import CollectionLoader from "~/components/SkeletonLoader/CollectionLoader.vue";
+// import CollectionLoader from "~/components/SkeletonLoader/CollectionLoader.vue";
+import { formatData } from "~/utils";
 
 const route = useRoute();
-const { formatData } = useUtil();
 const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();
 
 fetchPhotoDetails(route.params.id.toString());
