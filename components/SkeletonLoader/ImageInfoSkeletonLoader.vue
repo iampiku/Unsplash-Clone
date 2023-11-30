@@ -23,31 +23,30 @@
 				</div>
 			</div>
 		</template>
-		<div class="grid grid-cols-12">
-			<USkeleton class="h-[650px] col-span-4"></USkeleton>
-			<section class="col-span-8 flex justify-evenly text-xl">
-				<div class="flex gap-2">
-					<UIcon name="i-heroicons-eye" class="mt-2"></UIcon>
-					<span>
-						<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
-						<USkeleton class="h-4 w-[150px]"></USkeleton>
-					</span>
-				</div>
-				<div class="flex gap-2">
-					<UIcon name="i-heroicons-arrow-down-tray" class="mt-2"></UIcon>
-					<span>
-						<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
-						<USkeleton class="h-4 w-[150px]"></USkeleton>
-					</span>
-				</div>
-				<div class="flex gap-2">
-					<UIcon name="i-heroicons-calendar-days" class="mt-2"></UIcon>
-					<span>
-						<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
-						<USkeleton class="h-4 w-[150px]"></USkeleton>
-					</span>
-				</div>
-			</section>
-		</div>
+
+		<USkeleton class="h-[650px] w-[560px] mx-auto"></USkeleton>
+		<section class="flex justify-evenly gap-4 text-xl pt-6">
+			<UCard class="flex gap-2 w-full justify-center text-center">
+				<UIcon name="i-heroicons-eye" class="mt-2"></UIcon>
+				<span>
+					<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
+					<USkeleton class="h-4 w-[150px]"></USkeleton>
+				</span>
+			</UCard>
+			<UCard class="flex gap-2 w-full justify-center text-center">
+				<UIcon name="i-heroicons-arrow-down-tray" class="mt-2"></UIcon>
+				<span>
+					<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
+					<USkeleton class="h-4 w-[150px]"></USkeleton>
+				</span>
+			</UCard>
+			<UCard class="flex gap-2 w-full justify-center text-center">
+				<UIcon name="i-heroicons-calendar-days" class="mt-2"></UIcon>
+				<span>
+					<USkeleton class="h-4 w-[150px] mb-2"></USkeleton>
+					<USkeleton class="h-4 w-[150px]"></USkeleton>
+				</span>
+			</UCard>
+		</section>
 	</UCard>
 </template>

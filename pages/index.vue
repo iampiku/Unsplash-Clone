@@ -1,6 +1,6 @@
 <template>
 	<main
-		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-20 md:px-16"
+		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-16 md:px-16"
 	>
 		<div class="pb-10 items-start">
 			<p class="uppercase font-bold text-sm tracking-wider dark:text-slate-100">
@@ -22,8 +22,7 @@
 				<UInput
 					size="lg"
 					v-model="query"
-					variant="ghost"
-					class="flex-1 max-w-[610px]"
+					class="flex-1 max-w-[630px]"
 					placeholder="Search Images 📸"
 					@keyup.enter="handleSearch({ query, page: 1 })"
 					icon="i-heroicons-magnifying-glass-20-solid"

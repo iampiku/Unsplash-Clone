@@ -1,4 +1,5 @@
 <template>
+	<ImageInfoSkeletonLoader v-if="detailsLoading" />
 	<UContainer class="max-w-full p-6 my-4" v-if="photo">
 		<UCard>
 			<template #header>
@@ -98,34 +99,28 @@
 						</span>
 					</UCard>
 				</div>
-				<div>
-					<header class="font-semibold text-2xl py-6">
-						Similar collections:
-					</header>
-
-					<section
-						class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-					>
-						<CollectionCard
-							:photoCollection="collectionPhoto"
-							v-for="collectionPhoto in photo.related_collections.results"
-						/>
-						<!-- <CollectionLoader v-for="i in 6" :key="i" /> -->
-					</section>
-				</div>
 			</div>
 		</UCard>
 	</UContainer>
 </template>
 
 <script lang="ts" setup>
-// import CollectionLoader from "~/components/SkeletonLoader/CollectionLoader.vue";
+import ImageInfoSkeletonLoader from "~/components/SkeletonLoader/ImageInfoSkeletonLoader.vue";
+
 import { formatData } from "~/utils";
 
 const route = useRoute();
+const detailsLoading = useState(() => false);
 const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();
 
-fetchPhotoDetails(route.params.id.toString());
+onMounted(async () => {
+	detailsLoading.value = true;
+	try {
+		await fetchPhotoDetails(route.params.id.toString());
+	} finally {
+		detailsLoading.value = false;
+	}
+});
 
 async function handleDownload() {
 	await downloadPhoto({
