@@ -55,7 +55,7 @@ export function useUnsplash() {
 	}
 
 	async function searchPhotos(params: { query: string; page: number }) {
-		loading.value = true;
+		setLoading(true);
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.search.getPhotos({
@@ -72,12 +72,12 @@ export function useUnsplash() {
 			errorMessage.value = networkError;
 			photos.value = { results: [], total: 0, total_pages: 0 };
 		} finally {
-			loading.value = false;
+			setLoading(false);
 		}
 	}
 
 	async function fetchPhotoDetails(photoId: string) {
-		loading.value = true;
+		setLoading(true);
 		try {
 			const { errors, response, type } =
 				await unsplashServiceInstance.photos.get({ photoId });
@@ -90,12 +90,12 @@ export function useUnsplash() {
 			errorMessage.value = networkError;
 			photo.value = Object.create({});
 		} finally {
-			loading.value = false;
+			setLoading(false);
 		}
 	}
 
 	async function downloadPhoto(params: { downloadLocation: string }) {
-		loading.value = true;
+		setLoading(true);
 		try {
 			const { response, type, errors } =
 				await unsplashServiceInstance.photos.trackDownload(params);
@@ -112,7 +112,7 @@ export function useUnsplash() {
 		} catch (error) {
 			console.error(error);
 		} finally {
-			loading.value = false;
+			setLoading(false);
 		}
 	}
 

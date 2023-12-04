@@ -2,21 +2,30 @@
 	<main
 		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-16 md:px-16"
 	>
+		<!-- Header Section -->
 		<div class="pb-10 items-start">
-			<p class="uppercase font-bold text-sm tracking-wider dark:text-slate-100">
-				Welcome to
-			</p>
-			<p
-				class="text-4xl uppercase font-extrabold tracking-wider dark:text-slate-100"
-			>
-				Search <br />
-				Unsplash
-			</p>
-			<p class="py-6 text-xl">
-				Search through beautiful, free images and photos that you can <br />
-				download and use for any project. Better than any royalty free or stock
-				photos.
-			</p>
+			<div class="flex justify-between items-start">
+				<header>
+					<p
+						class="uppercase font-bold text-sm tracking-wider dark:text-slate-100"
+					>
+						Welcome to
+					</p>
+					<p
+						class="text-4xl uppercase font-extrabold tracking-wider dark:text-slate-100"
+					>
+						Search <br />
+						Unsplash
+					</p>
+					<p class="py-6 text-xl">
+						Search through beautiful, free images and photos that you can <br />
+						download and use for any project. Better than any royalty free or
+						stock photos.
+					</p>
+				</header>
+
+				<ThemeSwitch />
+			</div>
 
 			<div class="flex gap-2">
 				<UInput
@@ -56,22 +65,34 @@
 			</div>
 		</div>
 
-		<div
-			class="scroll-smooth columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4"
-			v-if="!loading"
-		>
-			<NuxtLink :to="`/${photo.id}`" v-for="photo in photoList">
-				<ImageCard :photo="photo" :key="photo.id" />
-			</NuxtLink>
-		</div>
-		<div v-else class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-			<CardSkeletonLoader :card-count="30" />
-		</div>
+		<!-- Image Grid -->
+		<template v-if="!photoList?.length">
+			<Error message="No search result found!" />
+		</template>
+		<template v-else>
+			<div
+				class="scroll-smooth columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4"
+				v-if="!loading"
+			>
+				<NuxtLink :to="`/${photo.id}`" v-for="photo in photoList">
+					<ImageCard :photo="photo" :key="photo.id" />
+				</NuxtLink>
+			</div>
+			<div
+				v-else
+				class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4"
+			>
+				<CardSkeletonLoader :card-count="30" />
+			</div>
+		</template>
 
+		<!-- Pagination -->
 		<UPagination
-			v-if="query.length > 3"
 			v-model="currentPage"
 			@click="onPagination"
+			v-if="query.length > 3"
+			class="flex justify-center pt-6"
+			:total="photos?.total_pages || 0"
 			:prev-button="{
 				icon: 'i-heroicons-arrow-small-left-20-solid',
 				label: 'Prev',
@@ -83,8 +104,6 @@
 				label: 'Next',
 				color: 'gray',
 			}"
-			class="flex justify-center pt-6"
-			:total="photos.total_pages"
 		/>
 	</main>
 
@@ -92,35 +111,62 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Component
+ */
 import CardSkeletonLoader from "~/components/SkeletonLoader/CardSkeletonLoader.vue";
-// const route = useRoute();
-const query = useState(() => "");
+
+/**
+ * Router
+ */
+const route = useRoute();
+const router = useRouter();
+
+/**
+ * State
+ */
+const query = useState(() => (route.query.search as string) ?? "");
 const currentPage = useState(() => 1);
+
+/**
+ * Composables
+ */
 const { randomPhotos, photos, loading, searchPhotos, fetchRandomPhotos } =
 	useUnsplash();
 
 onMounted(async () => {
-	await fetchRandomPhotos();
+	if (query.value.length !== 0) setSearchQuery(query.value);
+	if (route.query.search)
+		await searchPhotos({ query: route.query.search as string, page: 1 });
+	else await fetchRandomPhotos();
 });
 
-async function handleSearch(params: { query: string; page: number }) {
-	if (params.query.length) query.value = params.query;
-	if (params.query !== query.value) {
-		currentPage.value = 1;
-		params.query = query.value;
-	}
-	await searchPhotos(params);
-	// route.params = {
-	// 	search: params.query,
-	// };
+function setSearchQuery(query: string) {
+	router.push({
+		path: "/",
+		query: {
+			search: query,
+		},
+	});
 }
-
-const photoList = computed(() => {
-	return query.value.length ? photos.value.results : randomPhotos.value;
-});
 
 const isSearchEnable = computed(() => {
 	return query.value.length < 3;
+});
+
+async function handleSearch(params: { query: string; page: number }) {
+	if (params.query.length < 3) return;
+	query.value = params.query;
+	setSearchQuery(query.value);
+	await searchPhotos(params);
+}
+
+const photoList = computed(() => {
+	if (query.value.length < 3 && route.query.search === undefined)
+		return randomPhotos.value;
+	else if (route.query.search?.length !== 0 || query.value.length !== 0)
+		return photos.value?.results ?? [];
+	else return [];
 });
 
 async function onPagination() {

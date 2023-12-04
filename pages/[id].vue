@@ -54,10 +54,10 @@
 			</template>
 			<NuxtImg
 				format="webp"
-				loading="lazy"
+				loading="eager"
 				class="rounded-lg mx-auto max-w-3xl"
 				:alt="photo.id"
-				:src="photo.urls.full"
+				:src="photo.urls.regular"
 			></NuxtImg>
 
 			<div id="stats" class="pt-6">
@@ -102,6 +102,9 @@
 			</div>
 		</UCard>
 	</UContainer>
+	<UContainer v-else>
+		<Error :message="errorMessage" />
+	</UContainer>
 </template>
 
 <script lang="ts" setup>
@@ -111,7 +114,8 @@ import { formatData } from "~/utils";
 
 const route = useRoute();
 const detailsLoading = useState(() => false);
-const { photo, loading, fetchPhotoDetails, downloadPhoto } = useUnsplash();
+const { photo, loading, errorMessage, fetchPhotoDetails, downloadPhoto } =
+	useUnsplash();
 
 onMounted(async () => {
 	detailsLoading.value = true;
@@ -121,6 +125,8 @@ onMounted(async () => {
 		detailsLoading.value = false;
 	}
 });
+
+const errorHandler = () => clearError({ redirect: "/" });
 
 async function handleDownload() {
 	await downloadPhoto({

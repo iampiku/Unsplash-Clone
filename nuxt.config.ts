@@ -15,6 +15,9 @@ export default defineNuxtConfig({
 			],
 		},
 	},
+	colorMode: {
+		preference: "light",
+	},
 	runtimeConfig: {
 		public: {
 			ACCESS_KEY: import.meta.env.NUXT_ACCESS_KEY,
