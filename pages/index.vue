@@ -1,6 +1,6 @@
 <template>
 	<main
-		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-16 md:px-16"
+		class="bg-gray-200 dark:bg-gray-800 flex max-w-full justify-evenly flex-col py-20 md:py-24 px-11 md:px-16"
 	>
 		<!-- Header Section -->
 		<div class="pb-10 items-start">
@@ -50,7 +50,7 @@
 					:key="tag"
 					variant="soft"
 					@click="handleSearch({ query: tag, page: 1 })"
-					class="mx-1 rounded-full uppercase cursor-pointer hover:scale-110 duration-500"
+					class="mx-1 rounded-full uppercase cursor-pointer hover:scale-110 duration-500 my-1 md:my-0"
 					v-for="tag in [
 						'flower',
 						'wallpapers',
@@ -66,12 +66,12 @@
 		</div>
 
 		<!-- Image Grid -->
-		<template v-if="!photoList?.length">
+		<template v-if="!photoList.length">
 			<Error message="No search result found!" />
 		</template>
 		<template v-else>
 			<div
-				class="scroll-smooth columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4"
+				class="scroll-smooth columns-1 md:columns-2 lg:columns-4 gap-4"
 				v-if="!loading"
 			>
 				<NuxtLink :to="`/${photo.id}`" v-for="photo in photoList">
@@ -80,7 +80,7 @@
 			</div>
 			<div
 				v-else
-				class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4"
+				class="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4"
 			>
 				<CardSkeletonLoader :card-count="30" />
 			</div>

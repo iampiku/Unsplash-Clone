@@ -1,6 +1,6 @@
 <template>
 	<UCard
-		class="cursor-pointer shadow-lg mb-4 hover:shadow-2xl max-w-full hover:scale-105 duration-500"
+		class="cursor-pointer shadow-lg mb-4 hover:shadow-2xl hover:scale-105 duration-500"
 		:ui="{
 			body: { padding: 'sm:p-41' },
 			footer: { padding: 'sm:p-3' },
@@ -9,9 +9,9 @@
 		<NuxtImg
 			format="webp"
 			loading="lazy"
-			class="rounded-lg h-auto"
+			class="rounded-lg h-auto w-full"
 			:alt="props.photo.id"
-			:src="props.photo.urls.regular"
+			:src="props.photo.urls.small"
 		>
 		</NuxtImg>
 		<template #footer>
@@ -20,7 +20,8 @@
 					<UAvatar
 						size="md"
 						class="mr-2"
-						:src="props.photo.user.profile_image.small"
+						alt="user_profile"
+						:src="props.photo.user.profile_image.medium"
 					></UAvatar>
 
 					<div class="flex flex-col text-sm">

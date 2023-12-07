@@ -126,8 +126,6 @@ onMounted(async () => {
 	}
 });
 
-const errorHandler = () => clearError({ redirect: "/" });
-
 async function handleDownload() {
 	await downloadPhoto({
 		downloadLocation: photo.value.links.download_location,
