@@ -40,7 +40,7 @@
 					class="px-4"
 					variant="soft"
 					:loading="loading"
-					:disabled="isSearchEnable"
+					:disabled="isQueryShort"
 					@click="handleSearch({ query, page: 1 })"
 					>Search</UButton
 				>
@@ -49,7 +49,7 @@
 				<UBadge
 					:key="tag"
 					variant="soft"
-					@click="handleSearch({ query: tag, page: 1 })"
+					@click="onChipClick({ query: tag, page: 1 })"
 					class="mx-1 rounded-full uppercase cursor-pointer hover:scale-110 duration-500 my-1 md:my-0"
 					v-for="tag in [
 						'flower',
@@ -66,33 +66,33 @@
 		</div>
 
 		<!-- Image Grid -->
-		<template v-if="!photoList.length">
-			<Error message="No search result found!" />
+		<template v-if="errorMessage">
+			<Error :message="errorMessage" @onRefresh="clearSearch" />
 		</template>
 		<template v-else>
 			<div
 				class="scroll-smooth columns-1 md:columns-2 lg:columns-4 gap-4"
-				v-if="!loading"
+				v-if="loading"
+			>
+				<CardSkeletonLoader :card-count="30" />
+			</div>
+			<div
+				v-else
+				class="scroll-smooth columns-1 md:columns-2 lg:columns-4 gap-4"
 			>
 				<NuxtLink :to="`/${photo.id}`" v-for="photo in photoList">
 					<ImageCard :photo="photo" :key="photo.id" />
 				</NuxtLink>
 			</div>
-			<div
-				v-else
-				class="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4"
-			>
-				<CardSkeletonLoader :card-count="30" />
-			</div>
 		</template>
 
 		<!-- Pagination -->
 		<UPagination
+			v-if="searchExist && photos?.total_pages"
 			v-model="currentPage"
+			class="mx-auto pt-6"
 			@click="onPagination"
-			v-if="query.length > 3"
-			class="flex justify-center pt-6"
-			:total="photos?.total_pages || 0"
+			:total="photos.total_pages"
 			:prev-button="{
 				icon: 'i-heroicons-arrow-small-left-20-solid',
 				label: 'Prev',
@@ -129,47 +129,73 @@ const query = useState(() => (route.query.search as string) ?? "");
 const currentPage = useState(() => 1);
 
 /**
- * Composables
+ * Composable
  */
-const { randomPhotos, photos, loading, searchPhotos, fetchRandomPhotos } =
-	useUnsplash();
+const {
+	randomPhotos,
+	photos,
+	loading,
+	errorMessage,
+	searchPhotos,
+	fetchRandomPhotos,
+} = useUnsplash();
 
-onMounted(async () => {
-	if (query.value.length !== 0) setSearchQuery(query.value);
-	if (route.query.search)
-		await searchPhotos({ query: route.query.search as string, page: 1 });
-	else await fetchRandomPhotos();
-});
-
-function setSearchQuery(query: string) {
-	router.push({
-		path: "/",
-		query: {
-			search: query,
-		},
-	});
+interface Params {
+	query: string;
+	page: number;
 }
 
-const isSearchEnable = computed(() => {
+onMounted(async () => {
+	if (searchExist) {
+		setSearchQuery(query.value);
+		await handleSearch({ query: query.value, page: currentPage.value });
+	} else await fetchRandomPhotos();
+});
+
+function setSearchQuery(query: string, resetQuery = false) {
+	resetQuery
+		? router.push({ path: "/", query: {} })
+		: router.push({
+				path: "/",
+				query: {
+					search: query,
+				},
+		  });
+}
+
+const searchExist = computed(() => {
+	return !isQueryShort || route.query.search?.length !== 0;
+});
+
+const isQueryShort = computed(() => {
 	return query.value.length < 3;
 });
 
-async function handleSearch(params: { query: string; page: number }) {
-	if (params.query.length < 3) return;
-	query.value = params.query;
-	setSearchQuery(query.value);
+function searchResultExist() {
+	return photos.value && photos.value.results.length !== 0;
+}
+
+function onChipClick(params: Params) {
+	query.value = params.query; // update query with new value.
+	setSearchQuery(params.query); // set router search query.
+	handleSearch(params); // perform search.
+}
+
+async function handleSearch(params: Params) {
 	await searchPhotos(params);
 }
 
 const photoList = computed(() => {
-	if (query.value.length < 3 && route.query.search === undefined)
-		return randomPhotos.value;
-	else if (route.query.search?.length !== 0 || query.value.length !== 0)
-		return photos.value?.results ?? [];
-	else return [];
+	return searchResultExist() ? photos.value.results : randomPhotos.value;
 });
 
 async function onPagination() {
-	await searchPhotos({ query: query.value, page: currentPage.value });
+	await handleSearch({ query: query.value, page: currentPage.value });
+}
+
+function clearSearch() {
+	query.value = "";
+	errorMessage.value = "";
+	setSearchQuery("", true);
 }
 </script>

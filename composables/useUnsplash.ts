@@ -16,22 +16,21 @@ export function useUnsplash() {
 	const photos = useState<Photos>();
 	const loading = useState(() => false);
 	const errorMessage = useState(() => "");
-	const randomPhotos = useState<Array<Random>>();
+	const randomPhotos = useState<Array<Random>>(() => []);
 
 	const networkError = "Network error!";
 
 	/**
 	 * initialing unsplash instance
 	 */
-	const unsplashServiceInstance = unsplashService(
-		useRuntimeConfig().public.ACCESS_KEY
-	);
+	const { public: publicConfig } = useRuntimeConfig();
+	const unsplashServiceInstance = unsplashService(publicConfig.ACCESS_KEY);
 
 	function setLoading(value: boolean) {
 		loading.value = value;
 	}
 
-	function setError(errors: Errors) {
+	function setError(errors: Errors | string) {
 		errorMessage.value = Array.isArray(errors) ? errors.toString() : errors;
 	}
 
@@ -47,7 +46,7 @@ export function useUnsplash() {
 			if (Array.isArray(response)) randomPhotos.value = response;
 			else randomPhotos.value.push(response);
 		} catch {
-			errorMessage.value = networkError;
+			setError(networkError);
 			randomPhotos.value = [];
 		} finally {
 			setLoading(false);
@@ -63,13 +62,16 @@ export function useUnsplash() {
 					page: params.page,
 					perPage: 25,
 				});
+			if (response?.results.length === 0)
+				setError(`No search result found for ${params.query}`);
+
 			if (type === "error") {
 				setError(errors);
 				return;
 			}
 			if (response) photos.value = response;
 		} catch {
-			errorMessage.value = networkError;
+			setError(networkError);
 			photos.value = { results: [], total: 0, total_pages: 0 };
 		} finally {
 			setLoading(false);
@@ -87,7 +89,7 @@ export function useUnsplash() {
 			}
 			if (response) photo.value = response as Photo;
 		} catch {
-			errorMessage.value = networkError;
+			setError(networkError);
 			photo.value = Object.create({});
 		} finally {
 			setLoading(false);

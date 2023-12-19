@@ -1,25 +1,23 @@
 <template>
 	<ImageInfoSkeletonLoader v-if="detailsLoading" />
-	<UContainer class="max-w-full p-6 my-4" v-if="photo">
+	<UContainer class="sm:max-w-xs md:max-w-full p-6 my-4" v-if="photo">
 		<UCard>
 			<template #header>
 				<header class="flex justify-between">
 					<div class="flex items-center">
 						<NuxtLink to="/">
 							<UButton
-								size="xl"
-								class="mr-6"
+								class="mr-2"
 								variant="ghost"
 								icon="i-heroicons-arrow-left"
 							></UButton>
 						</NuxtLink>
 						<UAvatar
-							size="lg"
 							class="mr-2"
-							:src="photo.user.profile_image.large"
+							:src="photo.user.profile_image.medium"
 						></UAvatar>
 
-						<div class="flex flex-col text-lg">
+						<div class="flex flex-col text-sm md:text-base">
 							<span class="font-bold">{{ photo.user.name }}</span>
 							<UTooltip
 								v-if="photo.user.bio"
@@ -31,18 +29,17 @@
 									width: 'max-w-full',
 								}"
 							>
-								<span class="font-semibold truncate max-w-2xl">{{
+								<span class="font-semibold truncate max-w-[90px] sm:max-w-lg">{{
 									photo.user.bio
 								}}</span>
 							</UTooltip>
 						</div>
 					</div>
-					<div class="flex items-center text-xl font-semibold">
+					<div class="flex items-center text-sm md:text-base font-semibold">
 						<UIcon name="i-heroicons-heart"></UIcon>
 						<span class="ml-2">{{ likes }}</span>
 
 						<UButton
-							size="xl"
 							class="ml-6"
 							variant="ghost"
 							:loading="loading"
@@ -55,13 +52,15 @@
 			<NuxtImg
 				format="webp"
 				loading="eager"
-				class="rounded-lg mx-auto max-w-3xl"
 				:alt="photo.id"
 				:src="photo.urls.regular"
+				class="rounded-lg mx-auto max-w-full md:max-w-3xl"
 			></NuxtImg>
 
 			<div id="stats" class="pt-6">
-				<div class="flex justify-center gap-4 items-center text-xl w-full">
+				<div
+					class="flex flex-col md:flex-row justify-center gap-4 items-center text-base md:text-xl w-full"
+				>
 					<UCard
 						class="flex text-center justify-center gap-2 w-full"
 						:ui="{
@@ -103,7 +102,7 @@
 		</UCard>
 	</UContainer>
 	<UContainer v-else>
-		<Error :message="errorMessage" />
+		<Error :message="errorMessage" @onRefresh="handleRefresh" />
 	</UContainer>
 </template>
 
@@ -130,6 +129,10 @@ async function handleDownload() {
 	await downloadPhoto({
 		downloadLocation: photo.value.links.download_location,
 	});
+}
+
+function handleRefresh() {
+	clearError({ redirect: "/" });
 }
 
 const publishedOn = computed(() => {

@@ -25,7 +25,9 @@
 		</template>
 
 		<USkeleton class="h-[650px] w-[560px] mx-auto"></USkeleton>
-		<section class="flex justify-evenly gap-4 text-xl pt-6">
+		<section
+			class="flex justify-evenly flex-col md:flex-row gap-4 text-xl pt-6"
+		>
 			<UCard class="flex gap-2 w-full justify-center text-center">
 				<UIcon name="i-heroicons-eye" class="mt-2"></UIcon>
 				<span>

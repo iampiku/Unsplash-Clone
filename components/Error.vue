@@ -10,7 +10,7 @@
 		/>
 
 		<h2 class="font-mono pb-3">{{ props.message }}</h2>
-		<UButton @click="errorHandler">{{ props.buttonLabel }}</UButton>
+		<UButton @click="$emit('onRefresh')">{{ props.buttonLabel }}</UButton>
 	</section>
 </template>
 
@@ -24,5 +24,4 @@ const props = withDefaults(defineProps<Props>(), {
 	buttonLabel: "Refresh",
 	message: "Oops something went wrong",
 });
-const errorHandler = () => clearError({ redirect: "/" });
 </script>
