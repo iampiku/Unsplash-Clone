@@ -52,13 +52,13 @@
 					@click="onChipClick({ query: tag, page: 1 })"
 					class="mx-1 rounded-full uppercase cursor-pointer hover:scale-110 duration-500 my-1 md:my-0"
 					v-for="tag in [
-						'flower',
-						'wallpapers',
-						'background',
-						'happy',
-						'love',
-						'mountains',
 						'city',
+						'love',
+						'happy',
+						'flower',
+						'mountains',
+						'background',
+						'wallpapers',
 					]"
 					>{{ tag }}</UBadge
 				>
@@ -145,12 +145,22 @@ interface Params {
 	page: number;
 }
 
-onMounted(async () => {
-	if (searchExist) {
-		setSearchQuery(query.value);
-		await handleSearch({ query: query.value, page: currentPage.value });
-	} else await fetchRandomPhotos();
+const isQueryShort = computed(() => {
+	return query.value.length < 3;
 });
+
+const searchExist = computed(() => {
+	return !isQueryShort.value || "search" in route.query;
+});
+
+checkForSearch();
+
+async function checkForSearch() {
+	if (searchExist.value) {
+		setSearchQuery(query.value);
+		await searchPhotos({ query: query.value, page: currentPage.value });
+	} else await fetchRandomPhotos();
+}
 
 function setSearchQuery(query: string, resetQuery = false) {
 	resetQuery
@@ -163,20 +173,9 @@ function setSearchQuery(query: string, resetQuery = false) {
 		  });
 }
 
-const searchExist = computed(() => {
-	return !isQueryShort || route.query.search?.length !== 0;
-});
-
-const isQueryShort = computed(() => {
-	return query.value.length < 3;
-});
-
-function searchResultExist() {
-	return photos.value && photos.value.results.length !== 0;
-}
-
 function onChipClick(params: Params) {
 	query.value = params.query; // update query with new value.
+	currentPage.value = params.page; // update pagination.
 	setSearchQuery(params.query); // set router search query.
 	handleSearch(params); // perform search.
 }
@@ -186,7 +185,9 @@ async function handleSearch(params: Params) {
 }
 
 const photoList = computed(() => {
-	return searchResultExist() ? photos.value.results : randomPhotos.value;
+	return photos.value?.results?.length
+		? photos.value.results
+		: randomPhotos.value;
 });
 
 async function onPagination() {
