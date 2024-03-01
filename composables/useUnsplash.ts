@@ -62,13 +62,14 @@ export function useUnsplash() {
 					page: params.page,
 					perPage: 25,
 				});
-			if (response?.results.length === 0)
+			if (response?.results?.length === 0) {
 				setError(`No search result found for ${params.query}`);
-
-			if (type === "error") {
-				setError(errors);
 				return;
 			}
+
+			if (type === "error") setError(errors);
+			else setError("");
+
 			if (response) photos.value = response;
 		} catch {
 			setError(networkError);
