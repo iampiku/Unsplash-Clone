@@ -1,7 +1,3 @@
-Certainly! I've added a section for theme switching in the README. Also, I've included information on how to configure and run the application with the added theme functionality.
-
----
-
 # Unsplash Clone
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
