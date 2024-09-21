@@ -3,6 +3,9 @@ export default defineNuxtConfig({
 	pages: true,
 	devtools: { enabled: true },
 	modules: ["@nuxt/ui", "@nuxt/image"],
+	image: {
+		domains: ["https://images.unsplash.com"],
+	},
 	app: {
 		head: {
 			charset: "utf-16",
